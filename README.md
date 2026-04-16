@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="C:\Users\Naice\OneDrive\Imágenes\ChatGPT Image 13. Apr. 2026, 10_53_13.png" alt="NEN DYNAMICS Logo" width="300">
+  <img src="assets/logo.png" alt="NEN DYNAMICS Logo" width="300">
 </p>
 
 # NEN DYNAMICS - KI-gesteuerter Roboterarm 🤖
