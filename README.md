@@ -1,3 +1,11 @@
+<p align="center">
+  <img src="C:\Users\Naice\OneDrive\Imágenes\ChatGPT Image 13. Apr. 2026, 10_53_13.png" alt="NEN DYNAMICS Logo" width="300">
+</p>
+
+# NEN DYNAMICS - KI-gesteuerter Roboterarm
+
+
+
 # NEN DYNAMICS - KI-gesteuerter Roboterarm 🤖
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python)
