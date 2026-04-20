@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="NEN DYNAMICS Logo" width="300">
+</p>
+
 # NEN DYNAMICS - KI-gesteuerter Roboterarm 🤖
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python)
