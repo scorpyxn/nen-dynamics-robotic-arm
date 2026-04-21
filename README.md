@@ -86,7 +86,8 @@ graph TD
 - **Bibliotheken:**
   - `OpenCV` (Bildverarbeitung)
   - `NumPy` (Vektormathematik)
-  - `PySerial` (Hardware-Kommunikation)
+  - `PySerial` / `SMBus` (Hardware-Kommunikation)
+  - `Adafruit_PCA9685` (MotoPi Servo-Steuerung)
 
 ### 🏗 Hardware
 - **Base:** 6-Achs Roboterarm (Metall-Konstruktion)
@@ -99,10 +100,9 @@ graph TD
 ## 📂 Struktur
 ```text
 ├── docs/               # Dokumentation & Testprotokolle
-├── src/                # Quellcode-Basis
-│   ├── vision/         # Bildverarbeitung & KI-Module
-│   ├── control/        # Kinematik & Motor-Treiber
-│   └── main.py         # Zentraler Programm-Einstiegspunkt
+├── code/               # Quellcode-Basis
+│   ├── Pfadplanung.py  # Skript für Trajektorienberechnung & Pick&Place
+│   └── ...             # Weitere Module (Vision, Control)
 ├── assets/             # Grafiken, Logos & Screenshots
 ├── tests/              # Unit-Tests für Kinematik & Vision
 └── README.md           # Diese Dokumentation
@@ -125,7 +125,7 @@ source venv/bin/activate # Windows: venv\Scripts\activate
 
 ### 2. Abhängigkeiten installieren
 ```bash
-pip install opencv-python numpy pyserial
+pip install opencv-python numpy pyserial Adafruit_PCA9685
 ```
 
 ### 3. Ausführung
@@ -138,7 +138,7 @@ python src/main.py
 ## 📅 Meilensteine (Zeitplan)
 - [x] **Phase 1:** Mechanisches Hardware-Setup (100%)
 - [/] **Phase 2:** OpenCV Integration & Marker-Erkennung (Läuft)
-- [ ] **Phase 3:** Entwicklung der Inversen Kinematik (Geplant für KW 17)
+- [/] **Phase 3:** Entwicklung der Inversen Kinematik & Pfadplanung (Aktiv: Pick & Place Logik implementiert)
 - [ ] **Phase 4:** Autonomer Testlauf & Optimierung (Geplant für KW 19)
 
 ---

@@ -52,7 +52,8 @@ SICHERHEIT    = (1.5, 0.65, 2.0, 1.9, 0.85, 1.6)
 
 # Pickup-Position (wo der Block liegt) - ANPASSEN nach Messung!
 PICKUP        = (1.2, 1.0, 1.1, 1.9, 0.85, 2.5)
-PICKUP_OBEN   = (1.2, 0.65, 1.8, 1.9, 0.85, 2.5)  # über dem Block
+PICKUP_OBEN_LEER = (1.2, 0.65, 1.8, 1.9, 0.85, 2.5)  # Hinfahren (offen)
+PICKUP_OBEN_VOLL = (1.2, 0.65, 1.8, 1.9, 0.85, 0.5)  # Hochheben (zu)  # über dem Block
 
 # Ablage-Position (wo der Turm gebaut wird) - ANPASSEN nach Messung!
 ABLAGE        = (1.8, 1.0, 1.1, 1.9, 0.85, 2.5)
@@ -90,7 +91,7 @@ def block_aufnehmen():
     kralle_oeffnen()
 
     print("  2. Über Block fahren")
-    position_fahren(*PICKUP_OBEN)
+    position_fahren(*PICKUP_OBEN_LEER)
 
     print("  3. Arm senken zum Block")
     position_fahren(*PICKUP)
@@ -99,7 +100,7 @@ def block_aufnehmen():
     kralle_schliessen()
 
     print("  5. Arm hochheben")
-    position_fahren(*PICKUP_OBEN)
+    position_fahren(*PICKUP_OBEN_VOLL)
 
     print("  ✓ Block aufgenommen")
 
