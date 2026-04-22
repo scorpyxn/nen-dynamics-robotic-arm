@@ -9,15 +9,11 @@ import cv2
 import numpy as np
 import time
 import Pfadplanung  # Verbindet dieses Modul mit der Motorsteuerung (AP17)
+from Kamera_stream import CameraStream
 
-# ─────────────────────
-# 2. KAMERA SETUP
-# ─────────────────────
-# Kamera öffnen (Index 0 ist meist die interne/erste USB-Kamera)
-cap = cv2.VideoCapture(0)
-# Auflösung auf 640x480 festlegen (schneller zu verarbeiten)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
+# Kamera über das neue Modul initialisieren
+stream = CameraStream().start()
 
 # ─────────────────────
 # 3. KALIBRIERUNG
@@ -92,11 +88,10 @@ if __name__ == "__main__":
     time.sleep(1)
 
     while True:
-        # Kamerabild auslesen
-        ret, frame = cap.read()
-        if not ret:
-            print("Fehler: Kamera liefert kein Bild!")
-            break
+        # Kamerabild über den Stream-Thread abrufen
+        ret, frame = stream.get_frame()
+        if not ret or frame is None:
+            continue
             
         # Block im Bild suchen
         cx, cy, kontur = block_position_erkennen(frame)
@@ -116,8 +111,11 @@ if __name__ == "__main__":
             cv2.putText(frame, f"Servo: X={servo_x}, Y={servo_y}", (cx - 50, cy - 40), 
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
+        # Overlay aus dem Kamera-Modul hinzufügen (Branding & FPS)
+        frame = stream.draw_overlay(frame)
+        
         # Videostream anzeigen
-        cv2.imshow("Robot Vision", frame)
+        cv2.imshow("Robot Vision Center", frame)
         
         key = cv2.waitKey(1) & 0xFF
         
@@ -145,5 +143,5 @@ if __name__ == "__main__":
             Pfadplanung.PICKUP_OBEN_VOLL = original_pickup_voll
 
     # Aufräumen am Ende
-    cap.release()
+    stream.stop()
     cv2.destroyAllWindows()
