@@ -12,13 +12,7 @@ import Pfadplanung  # Nutzt die Motor-Steuerung aus AP17
 
 # ─────────────────────
 # 2. KONFIGURATION
-# ─────────────────────
-GRIPPER_CHANNEL = 5
-DEFAULT_OPEN = 2.5
-DEFAULT_CLOSED = 0.5
-
-# ─────────────────────
-# 3. FUNKTIONEN
+ 
 # ─────────────────────
 
 def clear_screen():
