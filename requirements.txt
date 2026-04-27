@@ -1,0 +1,18 @@
+# NEN Dynamics - Raspberry Pi Abhängigkeiten
+# Installation: pip install -r requirements.txt
+
+# Kamera
+picamera2
+
+# Computer Vision
+opencv-python
+numpy
+
+# KI Farberkennung (Teachable Machine)
+tflite-runtime
+
+# Gemini API (Aufgaben-Planer)
+google-generativeai
+
+# .env Datei Unterstützung
+python-dotenv

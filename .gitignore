@@ -1,0 +1,12 @@
+# Sensible Daten - NIE auf GitHub!
+.env
+
+# Python Cache
+__pycache__/
+*.py[cod]
+
+# Kamera-Aufnahmen
+assets/captures/
+
+# Logs
+*.log
