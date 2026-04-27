@@ -33,9 +33,26 @@ genai.configure(api_key=GEMINI_API_KEY)
 MODELL_PFAD = "../project.tm"          # Relativer Pfad zur .tm Datei
 MODELL_ORDNER = "../assets/ki_modell"  # Entpackt hierhin
 
-# ── Alle 6 trainierten Farben (KI kann diese erkennen) ──
-# WICHTIG: Reihenfolge muss mit Teachable Machine Labels übereinstimmen!
-FARB_KLASSEN = ["gruen", "blau", "gelb", "rot", "weiss", "natur"]
+# ── Trainierte Farben ──
+# WICHTIG: Exakt die gleichen Namen wie in Teachable Machine!
+FARB_KLASSEN = [
+    "Grüne Würfel",   # Index 0
+    "Gelbe Würfel",   # Index 1
+    "Blaue Würfel",   # Index 2
+    "Weise Würfel",   # Index 3  (Weiße)
+    "Natur Würfel",   # Index 4
+    "Rote Würfel",    # Index 5
+]
+
+# Mapping: TM-Label → einfacher Name (für Gemini & Terminal-Ausgabe)
+FARBE_KURZ = {
+    "Grüne Würfel": "gruen",
+    "Gelbe Würfel": "gelb",
+    "Blaue Würfel": "blau",
+    "Weise Würfel": "weiss",
+    "Natur Würfel": "natur",
+    "Rote Würfel":  "rot",
+}
 
 # Gemini Modell
 gemini = genai.GenerativeModel("gemini-1.5-flash")
@@ -95,9 +112,10 @@ def farbe_erkennen(interpreter, frame):
     # Beste Klasse
     beste_klasse = int(np.argmax(ausgabe))
     konfidenz = float(ausgabe[beste_klasse])
-    farbe = FARB_KLASSEN[beste_klasse]
+    tm_label = FARB_KLASSEN[beste_klasse]          # z.B. "Grüne Würfel"
+    farbe_kurz = FARBE_KURZ.get(tm_label, tm_label) # z.B. "gruen"
 
-    return farbe, konfidenz
+    return farbe_kurz, konfidenz
 
 def alle_sichtbaren_farben(interpreter, stream, min_konfidenz=0.85):
     """
