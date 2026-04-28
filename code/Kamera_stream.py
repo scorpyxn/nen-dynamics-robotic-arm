@@ -29,7 +29,7 @@ class CameraStream:
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
 
         if not self.cap.isOpened():
-            print("⚠ FEHLER: USB-Webcam konnte nicht geöffnet werden!")
+            print(" FEHLER: USB-Webcam konnte nicht geöffnet werden!")
 
         self.frame = None
         self.running = False

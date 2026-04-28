@@ -2,7 +2,7 @@
 # Installation: pip install -r requirements.txt
 
 # Kamera
-picamera2
+# picamera2 (nicht benötigt für USB-Webcam)
 
 # Computer Vision
 opencv-python
