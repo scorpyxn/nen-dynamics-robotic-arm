@@ -39,9 +39,10 @@ FARB_KLASSEN = [
     "Grüne Würfel",   # Index 0
     "Gelbe Würfel",   # Index 1
     "Blaue Würfel",   # Index 2
-    "Weise Würfel",   # Index 3
-    "Natur Würfel",   # Index 4
-    "Rote Würfel",    # Index 5
+    "Nichts",         # Index 3
+    "Weise Würfel",   # Index 4
+    "Natur Würfel",   # Index 5
+    "Rote Würfel",    # Index 6
 ]
 
 # Mapping: TM-Label → einfacher Name
@@ -49,6 +50,7 @@ FARBE_KURZ = {
     "Grüne Würfel": "gruen",
     "Gelbe Würfel": "gelb",
     "Blaue Würfel": "blau",
+    "Nichts":       "nichts",    
     "Weise Würfel": "weiss",
     "Natur Würfel": "natur",
     "Rote Würfel":  "rot",
@@ -67,7 +69,7 @@ def modell_entpacken():
         os.makedirs(MODELL_ORDNER)
     with zipfile.ZipFile(MODELL_PFAD, 'r') as zip_ref:
         zip_ref.extractall(MODELL_ORDNER)
-    print(f"✓ Modell entpackt nach: {MODELL_ORDNER}")
+    print(f" Modell entpackt nach: {MODELL_ORDNER}")
 
 def modell_laden():
     """Lädt das TFLite-Modell aus dem entpackten Ordner."""
@@ -76,13 +78,13 @@ def modell_laden():
         modell_entpacken()
 
     # TFLite Modell Datei suchen
-    modell_datei = os.path.join(MODELL_ORDNER, "model.tflite")
+    modell_datei = os.path.join(MODELL_ORDNER, "model_unquant.tflite")
     if not os.path.exists(modell_datei):
         modell_entpacken()
 
     interpreter = tflite.Interpreter(model_path=modell_datei)
     interpreter.allocate_tensors()
-    print("✓ Teachable Machine Farb-KI geladen")
+    print(" Teachable Machine Farb-KI geladen")
     return interpreter
 
 # ─────────────────────
@@ -188,20 +190,20 @@ def aufgabe_starten(befehl, stream, interpreter):
     # Schritt 1: Verfügbare Farben erkennen
     print("📷 Scanne Blöcke...")
     verfuegbare = alle_sichtbaren_farben(interpreter, stream)
-    print(f"✓ Erkannte Blöcke: {verfuegbare}")
+    print(f" Erkannte Blöcke: {verfuegbare}")
 
     if not verfuegbare:
-        print("⚠ Keine Blöcke erkannt! Bitte Blöcke vor die Kamera legen.")
+        print(" Keine Blöcke erkannt! Bitte Blöcke vor die Kamera legen.")
         return
 
     # Schritt 2: Gemini erstellt den Plan
     print("🧠 Gemini plant die Reihenfolge...")
     try:
         plan = gemini_plan_erstellen(befehl, verfuegbare)
-        print(f"✓ Plan: {plan['beschreibung']}")
+        print(f" Plan: {plan['beschreibung']}")
         print(f"  Reihenfolge: {plan['reihenfolge']}")
     except Exception as e:
-        print(f"⚠ Gemini Fehler: {e}")
+        print(f" Gemini Fehler: {e}")
         return
 
     # Schritt 3: Arm ausführen
@@ -227,7 +229,7 @@ def aufgabe_starten(befehl, stream, interpreter):
                 cx, cy, _ = Koordinaten_Logik.block_position_erkennen(frame)
                 if cx is not None:
                     servo_x, servo_y = Koordinaten_Logik.pixel_zu_servo(cx, cy)
-                    print(f"✓ {farbe} gefunden! Servo: ({servo_x}, {servo_y})")
+                    print(f" {farbe} gefunden! Servo: ({servo_x}, {servo_y})")
 
                     # Arm greift Block
                     original = Pfadplanung.PICKUP
@@ -240,9 +242,9 @@ def aufgabe_starten(befehl, stream, interpreter):
             time.sleep(0.1)
 
         if not gefunden:
-            print(f"⚠ {farbe} Block nicht gefunden, überspringe...")
+            print(f" {farbe} Block nicht gefunden, überspringe...")
 
-    print("\n✅ Aufgabe abgeschlossen!")
+    print("\n Aufgabe abgeschlossen!")
     Pfadplanung.fahre_zur_startposition()
 
 
