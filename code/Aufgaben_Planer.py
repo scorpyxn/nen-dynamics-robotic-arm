@@ -39,12 +39,12 @@ FARB_KLASSEN = [
     "Grüne Würfel",   # Index 0
     "Gelbe Würfel",   # Index 1
     "Blaue Würfel",   # Index 2
-    "Weise Würfel",   # Index 3  (Weiße)
+    "Weise Würfel",   # Index 3
     "Natur Würfel",   # Index 4
     "Rote Würfel",    # Index 5
 ]
 
-# Mapping: TM-Label → einfacher Name (für Gemini & Terminal-Ausgabe)
+# Mapping: TM-Label → einfacher Name
 FARBE_KURZ = {
     "Grüne Würfel": "gruen",
     "Gelbe Würfel": "gelb",
@@ -62,7 +62,6 @@ gemini = genai.GenerativeModel("gemini-1.5-flash")
 # ─────────────────────
 
 def modell_entpacken():
-    """Entpackt project.tm (ZIP) in den assets/ki_modell Ordner."""
     import zipfile
     if not os.path.exists(MODELL_ORDNER):
         os.makedirs(MODELL_ORDNER)
@@ -79,7 +78,7 @@ def modell_laden():
     # TFLite Modell Datei suchen
     modell_datei = os.path.join(MODELL_ORDNER, "model.tflite")
     if not os.path.exists(modell_datei):
-        modell_entpacken()  # Nochmal versuchen
+        modell_entpacken()
 
     interpreter = tflite.Interpreter(model_path=modell_datei)
     interpreter.allocate_tensors()
@@ -87,7 +86,7 @@ def modell_laden():
     return interpreter
 
 # ─────────────────────
-# 4. FARBERKENNUNG (Eure trainierte KI)
+# 4. FARBERKENNUNG
 # ─────────────────────
 
 def farbe_erkennen(interpreter, frame):
@@ -112,8 +111,8 @@ def farbe_erkennen(interpreter, frame):
     # Beste Klasse
     beste_klasse = int(np.argmax(ausgabe))
     konfidenz = float(ausgabe[beste_klasse])
-    tm_label = FARB_KLASSEN[beste_klasse]          # z.B. "Grüne Würfel"
-    farbe_kurz = FARBE_KURZ.get(tm_label, tm_label) # z.B. "gruen"
+    tm_label = FARB_KLASSEN[beste_klasse]          
+    farbe_kurz = FARBE_KURZ.get(tm_label, tm_label)
 
     return farbe_kurz, konfidenz
 
@@ -122,7 +121,7 @@ def alle_sichtbaren_farben(interpreter, stream, min_konfidenz=0.85):
     Scannt mehrere Frames und gibt eine Liste der erkannten Blöcke zurück.
     """
     erkannte = []
-    for _ in range(10):  # 10 Frames scannen
+    for _ in range(10): 
         ret, frame = stream.get_frame()
         if not ret or frame is None:
             continue
@@ -133,7 +132,7 @@ def alle_sichtbaren_farben(interpreter, stream, min_konfidenz=0.85):
     return erkannte
 
 # ─────────────────────
-# 5. AUFGABEN-PLANUNG (Gemini API)
+# 5. AUFGABEN-PLANUNG
 # ─────────────────────
 
 def gemini_plan_erstellen(befehl, verfuegbare_farben):
@@ -168,7 +167,7 @@ Beispiel Turm (alle übereinander):
     antwort = gemini.generate_content(prompt)
     text = antwort.text.strip()
 
-    # JSON aus Antwort extrahieren (falls Gemini Markdown-Blöcke nutzt)
+    # JSON aus Antwort extrahieren
     if "```" in text:
         text = text.split("```")[1].replace("json", "").strip()
 
@@ -216,7 +215,7 @@ def aufgabe_starten(befehl, stream, interpreter):
 
         # Farbe im Live-Bild suchen
         gefunden = False
-        for versuch in range(30):  # Max 3 Sekunden suchen
+        for versuch in range(30): 
             ret, frame = stream.get_frame()
             if not ret or frame is None:
                 continue

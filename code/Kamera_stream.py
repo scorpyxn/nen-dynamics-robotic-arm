@@ -42,29 +42,26 @@ class CameraStream:
         print(f"✓ Raspberry Pi Camera Module 3 initialisiert ({self.width}x{self.height})")
 
     def start(self):
-        """Startet den Capture-Thread."""
         if self.running:
             return self
         self.running = True
         self.thread = threading.Thread(target=self._update, args=())
-        self.thread.daemon = True  # Thread beendet sich mit dem Hauptprogramm
+        self.thread.daemon = True
         self.thread.start()
         return self
 
     def _update(self):
         """Interne Methode: Liest Frames von der PiCamera im Hintergrund."""
         while self.running:
-            # RGB-Frame von picamera2 holen und in BGR für OpenCV konvertieren
             rgb_frame = self.picam.capture_array()
             self.frame = cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2BGR)
 
-            # FPS Berechnung
             current_time = time.time()
             self.fps = 1 / (current_time - self.prev_time) if (current_time - self.prev_time) > 0 else 0
             self.prev_time = current_time
 
     def get_frame(self):
-        """Gibt das aktuelle BGR-Bild zurück (kompatibel mit OpenCV & Koordinaten_Logik)."""
+        """Gibt das aktuelle BGR-Bild zurück."""
         return self.frame is not None, self.frame
 
     def stop(self):
@@ -89,7 +86,7 @@ class CameraStream:
         return pfad
 
     def draw_overlay(self, frame):
-        """Zeichnet Statusinformationen (Branding, FPS, Uhrzeit) auf das Bild."""
+        """Zeichnet Statusinformationen auf das Bild."""
         if frame is None:
             return None
 

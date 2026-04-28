@@ -14,7 +14,7 @@ pwm.set_pwm_freq(50)  # 50Hz für Servos
 # ─────────────────────────────────────────
 
 def ms_zu_pwm(ms):
-    """Konvertiert Millisekunden (0.5-2.5) in PWM-Wert (0-4095)"""
+    """Konvertiert Millisekunden in PWM-Wert"""
     return int((ms / 20.0) * 4096)
 
 def servo_setzen(kanal, ms):
@@ -24,13 +24,13 @@ def servo_setzen(kanal, ms):
 def position_fahren(motor1, motor2, motor3, motor4, motor5, motor6, wartezeit=1.0):
     """
     Fährt alle 6 Motoren gleichzeitig zu den angegebenen Positionen.
-    Werte zwischen 0.5 (Minimum) und 2.5 (Maximum)
+    Werte zwischen 0.5 und 2.5
     motor1 = Drehteller
     motor2 = Unterarm
     motor3 = Oberarm
     motor4 = Unteres Handgelenk
     motor5 = Handgelenk
-    motor6 = Kralle (2.5=offen, 0.5=geschlossen)
+    motor6 = Kralle
     """
     servo_setzen(0, motor1)
     servo_setzen(1, motor2)
@@ -44,22 +44,22 @@ def position_fahren(motor1, motor2, motor3, motor4, motor5, motor6, wartezeit=1.
 # POSITIONEN DEFINIEREN
 # ─────────────────────────────────────────
 
-# Startposition (aus der Datenbank: startpos)
+# Startposition
 START         = (1.5, 0.65, 1.5, 1.9, 0.85, 1.6)
 
-# Sicherheitshöhe (Arm oben, sicher zum Fahren)
+# Sicherheitshöhe
 SICHERHEIT    = (1.5, 0.65, 2.0, 1.9, 0.85, 1.6)
 
-# Pickup-Position (wo der Block liegt) - ANPASSEN nach Messung!
+# Pickup-Position
 PICKUP        = (1.2, 1.0, 1.1, 1.9, 0.85, 2.5)
-PICKUP_OBEN_LEER = (1.2, 0.65, 1.8, 1.9, 0.85, 2.5)  # Hinfahren (offen)
-PICKUP_OBEN_VOLL = (1.2, 0.65, 1.8, 1.9, 0.85, 0.5)  # Hochheben (zu)  # über dem Block
+PICKUP_OBEN_LEER = (1.2, 0.65, 1.8, 1.9, 0.85, 2.5)
+PICKUP_OBEN_VOLL = (1.2, 0.65, 1.8, 1.9, 0.85, 0.5)  # Hochheben über dem Block
 
-# Ablage-Position (wo der Turm gebaut wird) - ANPASSEN nach Messung!
+# Ablage-Position - ANPASSEN nach Messung!
 ABLAGE        = (1.8, 1.0, 1.1, 1.9, 0.85, 2.5)
-ABLAGE_OBEN   = (1.8, 0.65, 1.8, 1.9, 0.85, 0.5)  # über der Ablage (Kralle geschlossen!)
+ABLAGE_OBEN   = (1.8, 0.65, 1.8, 1.9, 0.85, 0.5)  # über der Ablage
 
-# Höhe pro Blockebene (jeder Block erhöht die Ablage um diesen Wert)
+# Höhe pro Blockebene
 BLOCK_HOEHE   = 0.12
 
 # ─────────────────────────────────────────
@@ -152,7 +152,7 @@ if __name__ == "__main__":
         fahre_zur_startposition()
         time.sleep(1)
 
-        # 3 Blöcke stapeln (für den 3er-Turm aus AP21)
+        # 3 Blöcke stapeln
         anzahl_bloecke = 3
         for i in range(anzahl_bloecke):
             print(f"\n{'='*40}")

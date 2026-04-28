@@ -8,7 +8,7 @@
 import Adafruit_PCA9685
 import time
 import sys
-import Pfadplanung  # Nutzt die Motor-Steuerung aus AP17
+import Pfadplanung  
 
 # ─────────────────────
 # 2. KONFIGURATION

@@ -8,7 +8,7 @@
 import cv2
 import numpy as np
 import time
-import Pfadplanung  # Verbindet dieses Modul mit der Motorsteuerung (AP17)
+import Pfadplanung
 from Kamera_stream import CameraStream
 
 
@@ -32,7 +32,6 @@ SERVO_Y_MIN, SERVO_Y_MAX = 1.5, 0.8  # z.B. 1.5 ist weit weg (oben im Bild), 0.8
 # 4. UMRECHNUNGSFUNKTION
 # ─────────────────────
 def pixel_zu_servo(pixel_x, pixel_y):
-    """Rechnet (X, Y) Pixel- in (Motor1, Motor2) Servowerte um mittels linearer Interpolation."""
     servo_x = np.interp(pixel_x, [PIXEL_X_MIN, PIXEL_X_MAX], [SERVO_X_MIN, SERVO_X_MAX])
     servo_y = np.interp(pixel_y, [PIXEL_Y_MIN, PIXEL_Y_MAX], [SERVO_Y_MIN, SERVO_Y_MAX])
     return round(servo_x, 3), round(servo_y, 3)
@@ -42,11 +41,11 @@ def pixel_zu_servo(pixel_x, pixel_y):
 # ─────────────────────
 def block_position_erkennen(bild):
     """Findet einen farbigen Block im Bild und liefert X/Y Pixel."""
-    # 1. In HSV Farbraum wandeln (besser für Farberkennung)
+    # 1. In HSV Farbraum wandeln 
     hsv = cv2.cvtColor(bild, cv2.COLOR_BGR2HSV)
     
-    # 2. Rote Farbe erkennen (Werte an deine Blöcke anpassen!)
-    # Rot hat im HSV-Kreis zwei Bereiche (unten und ganz oben)
+    # 2. Rote Farbe erkennen
+    # Rot hat im HSV-Kreis zwei Bereiche
     lower_red = np.array([0, 120, 70])
     upper_red = np.array([10, 255, 255])
     
@@ -111,7 +110,7 @@ if __name__ == "__main__":
             cv2.putText(frame, f"Servo: X={servo_x}, Y={servo_y}", (cx - 50, cy - 40), 
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
-        # Overlay aus dem Kamera-Modul hinzufügen (Branding & FPS)
+        # Overlay aus dem Kamera-Modul hinzufügen
         frame = stream.draw_overlay(frame)
         
         # Videostream anzeigen

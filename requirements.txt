@@ -16,3 +16,7 @@ google-generativeai
 
 # .env Datei Unterstützung
 python-dotenv
+
+# Sprachsteuerung
+SpeechRecognition
+PyAudio
