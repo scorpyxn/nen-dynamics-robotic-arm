@@ -4,7 +4,6 @@
 # ─────────────────────
 # 1. IMPORTS
 # ─────────────────────
-from picamera2 import Picamera2
 import cv2
 import numpy as np
 import time
@@ -17,20 +16,20 @@ import threading
 
 class CameraStream:
     """
-    Klasse zur Verwaltung des Raspberry Pi Camera Module 3 Streams.
-    Nutzt picamera2 mit einem Hintergrund-Thread für minimalen Lag.
+    Klasse zur Verwaltung eines USB-Webcam Streams.
+    Nutzt OpenCV mit einem Hintergrund-Thread für minimalen Lag.
     """
     def __init__(self, width=640, height=480):
         self.width = width
         self.height = height
 
-        # picamera2 initialisieren und konfigurieren
-        self.picam = Picamera2()
-        config = self.picam.create_preview_configuration(
-            main={"size": (self.width, self.height), "format": "RGB888"}
-        )
-        self.picam.configure(config)
-        self.picam.start()
+        # Kamera initialisieren (0 = erste USB-Webcam)
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+
+        if not self.cap.isOpened():
+            print("⚠ FEHLER: USB-Webcam konnte nicht geöffnet werden!")
 
         self.frame = None
         self.running = False
@@ -39,7 +38,7 @@ class CameraStream:
         self.fps = 0
         self.prev_time = 0
 
-        print(f"✓ Raspberry Pi Camera Module 3 initialisiert ({self.width}x{self.height})")
+        print(f" USB-Webcam initialisiert ({self.width}x{self.height})")
 
     def start(self):
         if self.running:
@@ -51,10 +50,11 @@ class CameraStream:
         return self
 
     def _update(self):
-        """Interne Methode: Liest Frames von der PiCamera im Hintergrund."""
+        """Interne Methode: Liest Frames von der Kamera im Hintergrund."""
         while self.running:
-            rgb_frame = self.picam.capture_array()
-            self.frame = cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2BGR)
+            ret, frame = self.cap.read()
+            if ret:
+                self.frame = frame
 
             current_time = time.time()
             self.fps = 1 / (current_time - self.prev_time) if (current_time - self.prev_time) > 0 else 0
@@ -69,7 +69,7 @@ class CameraStream:
         self.running = False
         if hasattr(self, 'thread'):
             self.thread.join()
-        self.picam.stop()
+        self.cap.release()
         print("Kamera-Stream gestoppt.")
 
     def save_frame(self, frame, folder="assets/captures"):
