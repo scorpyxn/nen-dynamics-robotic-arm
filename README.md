@@ -91,7 +91,7 @@ graph TD
 
 ### 🏗 Hardware
 - **Base:** 6-Achs Roboterarm (Metall-Konstruktion)
-- **Computing:** Raspberry Pi 4 (4GB RAM)
+- **Computing:** Raspberry Pi 3 (4GB RAM)
 - **Controller:** Joy-IT MotoPi Servo-Board
 - **Optik:** 5MP Weitwinkel-Kamera (CSI-Interface)
 
