@@ -36,24 +36,24 @@ MODELL_ORDNER = "../assets/ki_modell"  # Entpackt hierhin
 # ── Trainierte Farben ──
 # WICHTIG: Exakt die gleichen Namen wie in Teachable Machine!
 FARB_KLASSEN = [
-    "Grüne Würfel",   # Index 0
-    "Gelbe Würfel",   # Index 1
-    "Blaue Würfel",   # Index 2
-    "Nichts",         # Index 3
-    "Weise Würfel",   # Index 4
-    "Natur Würfel",   # Index 5
-    "Rote Würfel",    # Index 6
+    "Nichts",         # Index 0
+    "Weiße Würfell",   # Index 1
+    "Blaue Würfell",   # Index 2
+    "Rote Würfell",   # Index 3
+    "Gelbe Würfell",   # Index 4
+    "Grüne Würfell",   # Index 5
+    "Natur Würfell",    # Index 6
 ]
 
 # Mapping: TM-Label → einfacher Name
 FARBE_KURZ = {
-    "Grüne Würfel": "gruen",
-    "Gelbe Würfel": "gelb",
-    "Blaue Würfel": "blau",
     "Nichts":       "nichts",    
-    "Weise Würfel": "weiss",
-    "Natur Würfel": "natur",
-    "Rote Würfel":  "rot",
+    "Grüne Würfell": "gruen",
+    "Gelbe Würfell": "gelb",
+    "Blaue Würfell": "blau",
+    "Weise Würfell": "weiss",
+    "Natur Würfell": "natur",
+    "Rote Würfell":  "rot",
 }
 
 # Gemini Modell
