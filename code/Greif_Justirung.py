@@ -5,7 +5,6 @@
 # ─────────────────────
 # 1. IMPORTS
 # ─────────────────────
-import Adafruit_PCA9685
 import time
 import sys
 import Pfadplanung  

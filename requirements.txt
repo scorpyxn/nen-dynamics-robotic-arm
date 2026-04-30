@@ -20,3 +20,8 @@ python-dotenv
 # Sprachsteuerung
 SpeechRecognition
 PyAudio
+audioop-lts # Benötigt für SpeechRecognition ab Python 3.13
+
+# Servosteuerung (Python 3.13 kompatibel)
+Adafruit-Blinka
+adafruit-circuitpython-pca9685

@@ -2,24 +2,29 @@
 # Roboterarm Nen Dynamics - Fahrwege zur Ablage
 # Verantwortlicher: Hamidullah Taymuree
 
-import Adafruit_PCA9685
+import board
+import busio
+from adafruit_pca9685 import PCA9685
 import time
 
+# I2C-Bus initialisieren
+i2c = busio.I2C(board.SCL, board.SDA)
+
 # PCA9685 initialisieren
-pwm = Adafruit_PCA9685.PCA9685()
-pwm.set_pwm_freq(50)  # 50Hz für Servos
+pca = PCA9685(i2c)
+pca.frequency = 50  # 50Hz für Servos
 
 # ─────────────────────────────────────────
 # HILFSFUNKTIONEN
 # ─────────────────────────────────────────
 
 def ms_zu_pwm(ms):
-    """Konvertiert Millisekunden in PWM-Wert"""
-    return int((ms / 20.0) * 4096)
+    """Konvertiert Millisekunden in 16-Bit PWM-Duty-Cycle (0-65535)"""
+    return int((ms / 20.0) * 65535)
 
 def servo_setzen(kanal, ms):
     """Setzt einen einzelnen Servo auf eine Position"""
-    pwm.set_pwm(kanal, 0, ms_zu_pwm(ms))
+    pca.channels[kanal].duty_cycle = ms_zu_pwm(ms)
 
 def position_fahren(motor1, motor2, motor3, motor4, motor5, motor6, wartezeit=1.0):
     """
