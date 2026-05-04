@@ -1,7 +1,0 @@
-0 Nichts
-1 Weiße Würfell
-2 Blaue Würfell
-3 Rote Würfell
-4 Gelbe Würfell
-5 Grüne Würfell
-6 Natur Würfell
