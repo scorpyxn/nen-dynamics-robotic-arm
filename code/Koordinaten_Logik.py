@@ -64,11 +64,10 @@ def pixel_zu_servo(pixel_x, pixel_y):
 # ─────────────────────
 # 5. ROBOFLOW POSITION ERKENNEN
 # ─────────────────────
-def roboflow_block_erkennen(frame):
+def roboflow_bloecke_erkennen(frame):
     """
-    Schickt ein Bild an Roboflow und gibt Farbe + Mittelpunkt-Koordinaten zurück.
-    Nutzt die Bounding Box aus der Roboflow-Antwort für die Position.
-    Gibt (farbe, konfidenz, cx, cy) oder (None, 0, None, None) bei Fehler zurück.
+    Schickt ein Bild an Roboflow und gibt alle erkannten Blöcke zurück.
+    Gibt eine Liste zurück: [(label, konfidenz, cx, cy), ...]
     """
     try:
         # Bild als JPEG kodieren und Base64 konvertieren
@@ -84,27 +83,23 @@ def roboflow_block_erkennen(frame):
         daten = antwort.json()
 
         vorhersagen = daten.get("predictions", [])
-        if not vorhersagen:
-            return None, 0.0, None, None
+        ergebnisse = []
+        
+        for p in vorhersagen:
+            label = p.get("class", "").lower()
+            konfidenz = float(p.get("confidence", 0.0))
+            cx = int(p.get("x", frame.shape[1] // 2))
+            cy = int(p.get("y", frame.shape[0] // 2))
+            ergebnisse.append((label, konfidenz, cx, cy))
 
-        # Beste Vorhersage nach Konfidenz
-        beste = max(vorhersagen, key=lambda p: p.get("confidence", 0))
-        label     = beste.get("class", "").lower()
-        konfidenz = float(beste.get("confidence", 0.0))
-
-        # Bounding Box Mittelpunkt berechnen
-        # Roboflow gibt x, y als Mittelpunkt der Box zurück
-        cx = int(beste.get("x", frame.shape[1] // 2))
-        cy = int(beste.get("y", frame.shape[0] // 2))
-
-        return label, konfidenz, cx, cy
+        return ergebnisse
 
     except requests.exceptions.Timeout:
         print("  [ROBOFLOW] Timeout")
-        return None, 0.0, None, None
+        return []
     except Exception as e:
         print(f"  [ROBOFLOW] Fehler: {e}")
-        return None, 0.0, None, None
+        return []
 
 
 # ─────────────────────
@@ -187,24 +182,31 @@ if __name__ == "__main__":
             if not ret or frame is None:
                 continue
 
-            # Roboflow: Farbe + Position erkennen
-            label, konfidenz, cx_rf, cy_rf = roboflow_block_erkennen(frame)
+            # Roboflow: Farben + Positionen erkennen
+            ergebnisse = roboflow_bloecke_erkennen(frame)
             servo_x, servo_y = None, None
+            beste_vorhersage = None
 
-            if label and konfidenz >= 0.70 and cx_rf is not None:
-                # Roboflow-Position verwenden
-                cx, cy = cx_rf, cy_rf
-                servo_x, servo_y = pixel_zu_servo(cx, cy)
+            for (label, konfidenz, cx_rf, cy_rf) in ergebnisse:
+                if konfidenz >= 0.70 and cx_rf is not None:
+                    # Roboflow-Position verwenden
+                    cx, cy = cx_rf, cy_rf
+                    s_x, s_y = pixel_zu_servo(cx, cy)
 
-                # Anzeige im Bild
-                cv2.circle(frame, (cx, cy), 8, (0, 255, 0), -1)
-                cv2.putText(frame, f"RF: {label} ({konfidenz:.0%})",
-                            (cx - 60, cy - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                cv2.putText(frame, f"Pixel: {cx}, {cy}",
-                            (cx - 60, cy - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-                cv2.putText(frame, f"Servo: {servo_x}, {servo_y}",
-                            (cx - 60, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
-            else:
+                    # Anzeige im Bild
+                    cv2.circle(frame, (cx, cy), 8, (0, 255, 0), -1)
+                    cv2.putText(frame, f"RF: {label} ({konfidenz:.0%})",
+                                (cx - 60, cy - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cv2.putText(frame, f"Pixel: {cx}, {cy}",
+                                (cx - 60, cy - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                    cv2.putText(frame, f"Servo: {s_x}, {s_y}",
+                                (cx - 60, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+                    
+                    if beste_vorhersage is None or konfidenz > beste_vorhersage[1]:
+                        beste_vorhersage = (label, konfidenz, cx, cy)
+                        servo_x, servo_y = s_x, s_y
+
+            if beste_vorhersage is None:
                 # Fallback: HSV-Erkennung für Position
                 cx, cy, kontur = block_position_erkennen(frame)
                 if cx is not None:

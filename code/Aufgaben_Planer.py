@@ -27,6 +27,9 @@ ROBOFLOW_API_KEY  = os.getenv("ROBOFLOW_API_KEY")
 # Gemini konfigurieren
 genai.configure(api_key=GEMINI_API_KEY)
 
+# Mindest-Konfidenz für Roboflow KI
+MIN_KONFIDENZ = 0.60
+
 # Roboflow Konfiguration
 ROBOFLOW_MODEL_ID  = "color-classification-w120p/1"
 ROBOFLOW_API_URL   = "https://serverless.roboflow.com"
@@ -51,10 +54,10 @@ FARBE_MAPPING = {
 # 3. ROBOFLOW FARBERKENNUNG
 # ─────────────────────
 
-def roboflow_farbe_erkennen(frame):
+def roboflow_farben_erkennen(frame):
     """
-    Schickt ein Kamerabild an Roboflow und gibt erkannte Farbe + Konfidenz zurück.
-    Gibt (farbe_string, konfidenz_float) oder (None, 0.0) bei Fehler zurück.
+    Schickt ein Kamerabild an Roboflow und gibt alle erkannten Farben zurück.
+    Gibt eine Liste von Dicts zurück: [{"farbe": "rot", "konfidenz": 0.9, "x": 100, "y": 100}, ...]
     """
     try:
         # Bild als JPEG kodieren und Base64 konvertieren
@@ -71,29 +74,35 @@ def roboflow_farbe_erkennen(frame):
         daten = antwort.json()
 
         # Roboflow Klassifikations-Antwort auswerten
-        # Format: {"predictions": [{"class": "red", "confidence": 0.95}, ...]}
         vorhersagen = daten.get("predictions", [])
-        if not vorhersagen:
-            return None, 0.0
+        ergebnisse = []
+        
+        for p in vorhersagen:
+            label = p.get("class", "").lower()
+            konfidenz = float(p.get("confidence", 0.0))
+            farbe = FARBE_MAPPING.get(label, label)
+            
+            x = int(p.get("x", frame.shape[1] // 2))
+            y = int(p.get("y", frame.shape[0] // 2))
+            
+            ergebnisse.append({
+                "farbe": farbe,
+                "konfidenz": konfidenz,
+                "x": x,
+                "y": y
+            })
 
-        # Beste Vorhersage auswählen
-        beste = max(vorhersagen, key=lambda p: p.get("confidence", 0))
-        label      = beste.get("class", "").lower()
-        konfidenz  = float(beste.get("confidence", 0.0))
-
-        # Label auf internen Farbnamen mappen
-        farbe = FARBE_MAPPING.get(label, None)
-        return farbe, konfidenz
+        return ergebnisse
 
     except requests.exceptions.Timeout:
         print("  [ROBOFLOW] Timeout – API antwortet nicht")
-        return None, 0.0
+        return []
     except requests.exceptions.RequestException as e:
         print(f"  [ROBOFLOW] Netzwerkfehler: {e}")
-        return None, 0.0
+        return []
     except Exception as e:
         print(f"  [ROBOFLOW] Unbekannter Fehler: {e}")
-        return None, 0.0
+        return []
 
 
 def roboflow_alle_farben(stream, anzahl_frames=15):
@@ -110,11 +119,14 @@ def roboflow_alle_farben(stream, anzahl_frames=15):
             if not ret or frame is None:
                 continue
 
-            farbe, konfidenz = roboflow_farbe_erkennen(frame)
+            ergebnisse = roboflow_farben_erkennen(frame)
 
-            if farbe and konfidenz >= MIN_KONFIDENZ and farbe not in erkannte:
-                erkannte.append(farbe)
-                print(f"  ✓ Neue Farbe erkannt: {farbe} ({konfidenz:.0%})")
+            for erg in ergebnisse:
+                farbe = erg["farbe"]
+                konfidenz = erg["konfidenz"]
+                if farbe and konfidenz >= MIN_KONFIDENZ and farbe not in erkannte:
+                    erkannte.append(farbe)
+                    print(f"  ✓ Neue Farbe erkannt: {farbe} ({konfidenz:.0%})")
 
             time.sleep(0.2)  # Kurze Pause zwischen API-Aufrufen
 
@@ -209,12 +221,17 @@ def aufgabe_starten(befehl, stream):
                 if not ret or frame is None:
                     continue
 
-                # Roboflow: Farbe im aktuellen Frame erkennen
-                erkannte_farbe, konfidenz = roboflow_farbe_erkennen(frame)
+                ergebnisse = roboflow_farben_erkennen(frame)
+                
+                ziel_block = None
+                for erg in ergebnisse:
+                    if erg["farbe"] == farbe and erg["konfidenz"] >= MIN_KONFIDENZ:
+                        if ziel_block is None or erg["konfidenz"] > ziel_block["konfidenz"]:
+                            ziel_block = erg
 
-                if erkannte_farbe == farbe and konfidenz >= MIN_KONFIDENZ:
-                    # Position des Blocks im Bild bestimmen
-                    cx, cy, _ = Koordinaten_Logik.block_position_erkennen(frame)
+                if ziel_block:
+                    # Position des Blocks direkt von Roboflow verwenden
+                    cx, cy = ziel_block["x"], ziel_block["y"]
                     if cx is not None:
                         servo_x, servo_y = Koordinaten_Logik.pixel_zu_servo(cx, cy)
 
